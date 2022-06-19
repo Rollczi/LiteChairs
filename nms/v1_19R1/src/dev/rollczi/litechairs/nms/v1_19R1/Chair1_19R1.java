@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2022 Rollczi
+ */
+
 package dev.rollczi.litechairs.nms.v1_19R1;
 
 import com.google.common.collect.ImmutableList;

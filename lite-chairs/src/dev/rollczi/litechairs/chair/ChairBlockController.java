@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2022 Rollczi
+ */
+
 package dev.rollczi.litechairs.chair;
 
 import dev.rollczi.litechairs.math.Position;

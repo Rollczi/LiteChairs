@@ -1,0 +1,10 @@
+/.gradle/
+/build/
+/lite-chairs/build/
+/lite-chairs/build/classes/java/main/
+/nms/build/
+/nms/nms-api/build/
+/nms/nms-api/build/classes/java/main/
+/nms/v1_19R1/build/
+/nms/v1_19R1/build/classes/java/main/
+.idea
