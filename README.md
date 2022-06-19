@@ -3,3 +3,5 @@
 Helpful links:
 - [Support Discord](https://discord.gg/6cUhkj6uZJ)
 - [GitHub issues](https://github.com/Rollczi/LiteChairs/issues)
+### Preview
+![image](https://user-images.githubusercontent.com/49173834/174481268-6378375c-0f32-4f06-ab9b-e541a172b4a9.png)
