@@ -4,21 +4,18 @@
 
 package dev.rollczi.litechairs.nms.v1_19R1;
 
-import com.google.common.collect.ImmutableList;
 import dev.rollczi.litechairs.nms.api.Chair;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.EntityArmorStand;
 import net.minecraft.world.level.World;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_19_R1.CraftWorld;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.ArmorStand.LockType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.inventory.EquipmentSlot;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.List;
 import java.util.function.Consumer;
 
 // IDE is not cooperating :(
@@ -36,37 +33,30 @@ public class Chair1_19R1 extends EntityArmorStand implements Chair {
 
     @Override
     public void k() {
-        if (this.passengers().isEmpty() || !(this.passengers().get(0) instanceof EntityPlayer)) {
+        if (this.passengers().isEmpty() || !(this.passengers().get(0) instanceof Player rider)) {
             this.kill();
             return;
         }
 
-        Entity rider = this.passengers().get(0);
+        float pitch = rider.getEyeLocation().getPitch();;
+        float yaw = rider.getEyeLocation().getYaw();
 
-        if (rider instanceof EntityPlayer) {
-            float yaw = rider.dr();               // float yaw = rider.getYaw();
-            this.w = yaw;                         // this.prevYaw = yaw;
-            this.o(yaw);                          // this.setYaw(yaw);
-
-            this.p(rider.dt() * 0.5F);         // this.setYaw(rider.getPitch() * 0.5F);
-            this.a(this.dr(), this.dt());         // this.setRot(this.getYaw(), this.getPitch());
-            this.bh = this.dr();                  // this.run = this.getYaw();
-        }
+        this.getBukkitEntity().setRotation(yaw, pitch * 0.5F);
     }
 
     @Override
     public void kill() {
-        this.be = true; // this.dead = true;
+        this.getBukkitEntity().remove();
         this.deathCallBack.accept(this.getId());
-    }
-
-    private ImmutableList<Entity> passengers() {
-        return ((Entity) this).au;
     }
 
     @Override
     public int getId() {
-        return this.ae();
+        return this.getBukkitEntity().getEntityId();
+    }
+
+    private List<org.bukkit.entity.Entity> passengers() {
+        return this.getBukkitEntity().getPassengers();
     }
 
     static Chair spawn(Location location, Player player, Consumer<Integer> deathCallBack) {
@@ -78,36 +68,27 @@ public class Chair1_19R1 extends EntityArmorStand implements Chair {
 
         World mcWorld = craftWorld.getHandle();
         Chair1_19R1 customEntity = new Chair1_19R1(mcWorld, location.getX(), location.getY(), location.getZ(), deathCallBack);
-        customEntity.e(true);           // customEntity.setNoGravity(true)
 
         if (!(customEntity.getBukkitEntity() instanceof ArmorStand armorStand)) {
             throw new IllegalStateException();
         }
 
+        armorStand.setGravity(false);
         armorStand.setRemoveWhenFarAway(false);
 
         mcWorld.addFreshEntity(customEntity, CreatureSpawnEvent.SpawnReason.CUSTOM);
 
-        NBTTagCompound nbt = new NBTTagCompound();
+        armorStand.setInvulnerable(true);
+        armorStand.setVisible(false);
+        armorStand.addEquipmentLock(EquipmentSlot.HEAD, LockType.ADDING_OR_CHANGING);
+        armorStand.addEquipmentLock(EquipmentSlot.CHEST, LockType.ADDING_OR_CHANGING);
+        armorStand.addEquipmentLock(EquipmentSlot.LEGS, LockType.ADDING_OR_CHANGING);
+        armorStand.addEquipmentLock(EquipmentSlot.FEET, LockType.ADDING_OR_CHANGING);
 
-        customEntity.e(nbt);                  // customEntity.save(nbt);
-        nbt.a("Invulnerable", true);          // nbt.setBoolean("Invulnerable", true);
-        customEntity.g(nbt);                  // customEntity.load(nbt)
-        customEntity.b(nbt);                  // customEntity.saveData(nbt)
-        nbt.a("Invisible", true);             // nbt.setBoolean("Invisible", true);
-        nbt.a("DisabledSlots", 2031616);      // nbt.setInt("DisabledSlots", 2031616);
-        //customEntity.a(nbt);                  // customEntity.readAdditionalSaveData(nbt)
+        armorStand.addEquipmentLock(EquipmentSlot.HAND, LockType.ADDING_OR_CHANGING);
+        armorStand.addEquipmentLock(EquipmentSlot.OFF_HAND, LockType.ADDING_OR_CHANGING);
 
-        // Invoke customEntity.a(nbt) method (IDE is not cooperating)
-        try {
-            Method method = customEntity.getClass().getMethod("a", NBTTagCompound.class);
-            method.invoke(customEntity, nbt);
-        }
-        catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
-            throw new RuntimeException(ex);
-        }
-
-        customEntity.getBukkitEntity().setPassenger(player);
+        armorStand.addPassenger(player);
 
         return customEntity;
     }
