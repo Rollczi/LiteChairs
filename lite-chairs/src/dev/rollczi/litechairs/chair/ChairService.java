@@ -50,19 +50,6 @@ public class ChairService {
         this.sittingByPlayer.put(sittingPlayer.getPlayer(), sittingPlayer);
     }
 
-    public void standUp(SittingPlayer sittingPlayer) {
-        Player player = server.getPlayer(sittingPlayer.getPlayer());
-
-        if (player != null) {
-            player.teleport(PositionConverter.convert(sittingPlayer.getPosition()));
-        }
-
-        sittingByEntityId.remove(sittingPlayer.getChair().getId());
-        sittingByPosition.remove(sittingPlayer.getPosition());
-        sittingByPlayer.remove(sittingPlayer.getPlayer());
-        sittingPlayer.getChair().kill();;
-    }
-
     public void standUp(int entityId) {
         Optional<SittingPlayer> sittingPlayer = this.getSittingPlayer(entityId);
 
@@ -71,6 +58,19 @@ public class ChairService {
         }
 
         this.standUp(sittingPlayer.get());
+    }
+
+    public void standUp(SittingPlayer sittingPlayer) {
+        sittingByEntityId.remove(sittingPlayer.getChair().getId());
+        sittingByPosition.remove(sittingPlayer.getPosition());
+        sittingByPlayer.remove(sittingPlayer.getPlayer());
+        sittingPlayer.getChair().kill();
+
+        Player player = server.getPlayer(sittingPlayer.getPlayer());
+
+        if (player != null) {
+            player.teleport(PositionConverter.convert(sittingPlayer.getPosition()));
+        }
     }
 
     public boolean isChair(Position position) {
