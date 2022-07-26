@@ -10,7 +10,7 @@ import dev.rollczi.litechairs.nms.api.NmsAccessor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.type.Stairs;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,21 +19,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Map;
 import java.util.Optional;
 
 public class ChairSitController implements Listener {
-
-    private static final Map<Integer, Float> STAIRS_TO_YAW = Map.of(
-            0, 90F,
-            1, - 90F,
-            2, 180F,
-            3, 0F
-    );
 
     private final ChairService chairService;
     private final NmsAccessor nmsAccessor;
@@ -44,7 +33,7 @@ public class ChairSitController implements Listener {
     }
 
     @EventHandler
-    public void spawnStairs(PlayerInteractEvent interactEvent) {
+    public void onSit(PlayerInteractEvent interactEvent) {
         Player player = interactEvent.getPlayer();
 
         if (!interactEvent.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
@@ -61,7 +50,7 @@ public class ChairSitController implements Listener {
             return;
         }
 
-        if (stairs.getFacing() == BlockFace.UP) {
+        if (stairs.getHalf() == Bisected.Half.TOP) {
             return;
         }
 
@@ -89,26 +78,13 @@ public class ChairSitController implements Listener {
             return;
         }
 
-        ItemStack asItem = clickedBlock.getState().getData().toItemStack(1);
-        ItemMeta itemMeta = asItem.getItemMeta();
-
-        if (!(itemMeta instanceof Damageable damageable)) {
-            return;
-        }
-
-        int damage = damageable.getDamage();
-
         Location playerLocation = player.getLocation();
-        Location toEdit = player.getLocation().clone();
+        Location playerSitLocation = player.getLocation().clone();
 
-        if (!STAIRS_TO_YAW.containsKey(damage)) {
-            return;
-        }
+        playerSitLocation.setYaw(stairs.getFacing().getModY() == 0 ? playerLocation.getYaw() : playerLocation.getYaw() + 180);
+        playerSitLocation.setPitch(0.0F);
 
-        toEdit.setYaw(STAIRS_TO_YAW.get(damage));
-        toEdit.setPitch(0.0F);
-
-        player.teleport(toEdit);
+        player.teleport(playerSitLocation);
 
         Chair chair = nmsAccessor.spawn(location, player, this.chairService::standUp);
         SittingPlayer sittingPlayer = new SittingPlayer(chair, player.getUniqueId(), PositionConverter.convert(playerLocation));
@@ -117,7 +93,7 @@ public class ChairSitController implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void quit(PlayerQuitEvent event) {
+    public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         Optional<SittingPlayer> sittingPlayer = chairService.getSittingPlayer(player.getUniqueId());
 
