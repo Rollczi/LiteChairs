@@ -14,7 +14,7 @@ subprojects {
     }
 
     group = "dev.rollczi"
-    version = "1.0.0-SNAPSHOT"
+    version = "1.1.0-SNAPSHOT"
 
     apply(plugin = "java-library")
     apply(plugin = "com.github.johnrengelman.shadow")
