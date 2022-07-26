@@ -43,14 +43,14 @@ public class ChairTeleportController implements Listener {
             }
         }
 
-        if (!chairService.isSit(event.getPlayer())) {
+        Player player = event.getPlayer();
+
+        if (!chairService.isSit(player)) {
             return;
         }
 
-        if (event.getPlayer().getVehicle() instanceof ArmorStand armorStand) {
-            if (chairService.isChair(armorStand)) {
-                chairService.standUp(armorStand.getEntityId());
-            }
+        if (player.getVehicle() instanceof ArmorStand armorStand && chairService.isChair(armorStand)) {
+            chairService.standUp(armorStand.getEntityId());
         }
     }
 
