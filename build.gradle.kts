@@ -50,7 +50,7 @@ project(":lite-chairs") {
         compileOnly("org.spigotmc:spigot-api:1.19-R0.1-SNAPSHOT")
 
         testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.14.3")
     }
 
     tasks.withType <com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
